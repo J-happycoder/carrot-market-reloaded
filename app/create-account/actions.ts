@@ -4,6 +4,7 @@ import db from "@/lib/db";
 import { string, z } from "zod";
 import bcrypt from "bcrypt";
 import session from "@/lib/session";
+import { redirect } from "next/navigation";
 
 const checkPassword = ({
   password,
@@ -24,6 +25,7 @@ const checkIfUserAlreadyExists = async ({
     (await db.user.count({
       where: {
         username,
+        authType: "PASSWORD",
       },
     })) > 0;
   if (usernameExists) return false;
@@ -32,6 +34,7 @@ const checkIfUserAlreadyExists = async ({
     (await db.user.count({
       where: {
         email,
+        authType: "PASSWORD",
       },
     })) > 0;
   if (emailExists) return false;
@@ -88,6 +91,7 @@ async function join({
     },
   });
   session.set(user);
+  redirect("/profile");
 }
 
 export async function handleJoinForm(previousState: any, formData: FormData) {

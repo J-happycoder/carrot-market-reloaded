@@ -31,15 +31,16 @@ export async function GET(request: NextRequest) {
   const { data } = await octokit.request("GET /user");
   if (!data) return new NextResponse(null, { status: 500 });
 
-  const { id: githubId, login: githubUsername, avatar_url: avatarUrl } = data;
+  const { id: githubId, login: username, avatar_url: avatarUrl } = data;
 
   const user = await db.user.upsert({
     where: {
       githubId,
     },
     create: {
+      authType: "GITHUB",
       githubId,
-      githubUsername,
+      username,
       avatarUrl,
     },
     update: {},
