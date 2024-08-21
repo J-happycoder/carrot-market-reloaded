@@ -8,17 +8,23 @@ datasource db {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   username       String
   hashedPassword String?
-  email          String?  @unique
-  phone          String?  @unique
-  githubId       Int?     @unique
+  email          String?    @unique
+  phone          String?    @unique
+  githubId       Int?       @unique
   avatarUrl      String?
-  authType       String   @default("PASSWORD")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  authType       String     @default("PASSWORD")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
   token          Token?
+  products       Product[]
+  posts          Post[]
+  comments       Comment[]
+  likes          Like[]
+  chatRooms      ChatRoom[]
+  messages       Message[]
 
   @@unique([username, authType])
 }
@@ -30,4 +36,80 @@ model Token {
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int      @unique
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  price       Float
+  description String
+  photoUrl    String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+  comments Comment[]
+  likes    Like[]
+}
+
+model Comment {
+  id   Int    @id @default(autoincrement())
+  text String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+}
+
+model Like {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int
+
+  @@id(name: "id", [userId, postId])
+}
+
+model ChatRoom {
+  id String @id @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users    User[]
+  messages Message[]
+}
+
+model Message {
+  id   Int     @id @default(autoincrement())
+  text String
+  read Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  chatRoomId String
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
 }

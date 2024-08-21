@@ -7,3 +7,12 @@
     @apply w-full flex items-center justify-center rounded-lg transition-colors;
   }
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  display: none;
+}
+
+*:focus {
+  outline: none;
+}

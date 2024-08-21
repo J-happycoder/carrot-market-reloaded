@@ -1,21 +1,40 @@
-import { createCipheriv, createDecipheriv } from "crypto";
-
 const { AES_KEY, AES_IV } = process.env;
 
-export function encrypt(plainText: string) {
-  const cipher = createCipheriv("aes-256-cbc", AES_KEY!, AES_IV!);
-  const cipherText = Buffer.concat([
-    cipher.update(plainText),
-    cipher.final(),
-  ]).toString("hex");
-  return cipherText;
+async function getKey() {
+  const keyData = new TextEncoder().encode(AES_KEY);
+
+  return await crypto.subtle.importKey("raw", keyData, "AES-CBC", false, [
+    "encrypt",
+    "decrypt",
+  ]);
 }
 
-export function decrypt(cipherText: string) {
-  let decipher = createDecipheriv("aes-256-cbc", AES_KEY!, AES_IV!);
-  const plainText = Buffer.concat([
-    decipher.update(Buffer.from(cipherText, "hex")),
-    decipher.final(),
-  ]).toString();
-  return plainText;
+export async function encrypt(plainText: string) {
+  const encoder = new TextEncoder();
+
+  const encrypted = await crypto.subtle.encrypt(
+    {
+      name: "AES-CBC",
+      iv: encoder.encode(AES_IV),
+    },
+    await getKey(),
+    encoder.encode(plainText)
+  );
+
+  return Buffer.from(encrypted).toString("hex");
+}
+
+export async function decrypt(cipherText: string) {
+  const encoder = new TextEncoder();
+
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: "AES-CBC",
+      iv: encoder.encode(AES_IV),
+    },
+    await getKey(),
+    Buffer.from(cipherText, "hex")
+  );
+
+  return Buffer.from(decrypted).toString();
 }

@@ -1,19 +1,21 @@
-import { protect } from "@/lib/protect";
-import session from "@/lib/session";
+import { destroySession } from "@/lib/session";
+import { getUser } from "@/lib/user";
 import { redirect } from "next/navigation";
 
 export default async function Profile() {
-  const user = await protect("AUTHENTICATED_ONLY");
+  const user = await getUser();
   const logout = async () => {
     "use server";
-    session.destroy();
+    destroySession();
     redirect("/");
   };
   return (
-    <div>
+    <div className="max-w-xl w-full mx-auto flex flex-col">
       <span className="mr-3">Welcome</span>
-      {user?.authType === "GITHUB" && <span>gh-{user.username}</span>}
-      {user?.authType === "PASSWORD" && <span>{user.username}</span>}
+      {user?.authType === "GITHUB" && (
+        <span>gh-{user.username || "당근이"}</span>
+      )}
+      {user?.authType !== "GITHUB" && <span>{user?.username || "당근이"}</span>}
       <form action={logout}>
         <button>log out</button>
       </form>

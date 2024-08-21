@@ -1,9 +1,9 @@
 import { MapPinIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between px-5 py-8 max-w-xl mx-auto">
+    <div className="min-h-screen flex flex-col items-center justify-between p-5 max-w-xl mx-auto">
       <div className="flex flex-col my-auto gap-5">
         <span className="text-orange-500 flex justify-center">
           <MapPinIcon className="size-28" />
